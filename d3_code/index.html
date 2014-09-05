@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Test Map</title>
+	<script type="text/javascript" src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+	<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+
+<body>
+	<div id="map"></div>
+
+	<script type="text/javascript">
+		var canvas = d3.select("#map")
+			.append("svg:svg")
+			.attr("height", 700)
+			.attr("width", 1000);
+
+		var foo;
+
+		d3.json("../data/geo/healthcare_providers_dentists.json", function(data){
+			foo = data;
+			
+			var center = d3.geo.centroid(data);
+			var scale = 60000;
+			var offset = [400, 400];
+			var projection = d3.geo
+				.mercator()
+				.scale(scale)
+				.center(center)
+				.translate(offset);
+
+			var path = d3.geo.path().projection(projection);
+
+			canvas.selectAll("path")
+				.data(data.features)
+				.enter()
+					.append("path")
+					.attr("d", path);
+		});
+	</script>	
+</body>
+</html>
