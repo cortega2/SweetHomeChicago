@@ -8,21 +8,29 @@
 
 <body>
 	<div id="map"></div>
+    <div id="map2"></div>
 
 	<script type="text/javascript">
 		var canvas = d3.select("#map")
 			.append("svg:svg")
-			.attr("height", 700)
-			.attr("width", 1000);
+			.attr("height", 1250)
+			.attr("width", 1250);
+
+        var canvas2 = d3.select("#map2")
+            .append("svg:svg")
+            .attr("height", 700)
+            .attr("width", 1000);
 
 		var foo;
+        var foo1;
 
-		d3.json("../data/geo/healthcare_providers_dentists.json", function(data){
-			foo = data;
-			
-			var center = d3.geo.centroid(data);
-			var scale = 60000;
-			var offset = [400, 400];
+
+		d3.json("../data/geo/healthcare_providers_dentists.json", function(data){			
+			foo1 = data;
+
+            var center = d3.geo.centroid(data);
+			var scale = 100000;
+			var offset = [400, 600];
 			var projection = d3.geo
 				.mercator()
 				.scale(scale)
@@ -35,8 +43,63 @@
 				.data(data.features)
 				.enter()
 					.append("path")
-					.attr("d", path);
+					.attr("d", path)
+                    .attr("fill", "#fff")
+                    .attr("stroke", "#000")
+                    .on("mouseover", function(d){
+                        console.log(d.properties.name);
+                        d3.select(this)
+                            .attr("fill", "red");
+                    })
+                    .on("mouseout", function(){
+                        d3.select(this)
+                            .attr("fill", "white");
+                    });
+
+                    // add labels code thanks to:
+                    // http://stackoverflow.com/questions/13897534/add-names-of-the-states-to-a-map-in-d3-js
+                    canvas.selectAll("text")
+                        .data(data.features)
+                        .enter()
+                            .append("svg:text")
+                            .text(function(d){
+                                return d.properties.name;
+                            })
+                            .attr("x", function(d){
+                                return path.centroid(d)[0];
+                            })
+                            .attr("y", function(d){
+                                return path.centroid(d)[1];
+                            })
+                            .attr("text-anchor", "middle")
+                            .attr("font-size", "8pt");
 		});
+
+        // not working...not sure why!
+        // d3.json("../data/geo/everyblock-neighborhoods-chicago.json", function(error, data){            
+        //     if(error){
+        //         console.log(error);
+        //     }
+
+        //     foo = data;
+
+        //     var center = d3.geo.centroid(data);
+        //     var scale = 60000;
+        //     var offset = [400, 400];
+        //     var projection = d3.geo
+        //         .mercator()
+        //         .scale(scale)
+        //         .center(center)
+        //         .translate(offset);
+
+        //     var path = d3.geo.path().projection(projection);
+
+        //     canvas2.selectAll("path")
+        //         .data(data)
+        //         .enter()
+        //             .append("path")
+        //             .attr("d", path);
+        // });
 	</script>	
 </body>
 </html>
