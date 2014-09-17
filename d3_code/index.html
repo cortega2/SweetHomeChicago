@@ -1,79 +1,64 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Test Map</title>
-	<script type="text/javascript" src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+	<title>Sweet Home Chicago 0.1</title>
+	<script type="text/javascript" src="d3.v3.min.js" charset="utf-8"></script>
 	<link rel="stylesheet" type="text/css" href="style.css">
+
+    <style>
+      /*html, body, #map{
+        height: 100%;
+        margin: 0px;
+        padding: 0px
+      }*/
+    </style>
 </head>
 
 <body>
-	<div id="map"></div>
-    <div id="map2"></div>
-
+    <div id = "drawSpace"></div>
+    <script type="text/javascript" src = "houseFunct.js"></script>
 	<script type="text/javascript">
-		var canvas = d3.select("#map")
-			.append("svg:svg")
-			.attr("height", 1250)
-			.attr("width", 1250);
+        // 
+        var viewboxHeight = 814;
+        var viewboxWidth = 1600;
 
-        var canvas2 = d3.select("#map2")
-            .append("svg:svg")
-            .attr("height", 700)
-            .attr("width", 1000);
+        // add viewbox to the drawSpace
+        var svg = d3.select("#drawSpace")
+            .append("svg")
+            .attr("viewBox", "0 0 " + viewboxWidth + " " + viewboxHeight)
+            .attr("preserveAspectRatio", "xMidYMid meet");
 
-		var foo;
-        var foo1;
+        // make objects that control the different draw areas 
+        var overall = new overallSpace(svg, viewboxWidth, viewboxHeight);
+        var mapArea = new mapArea(svg, viewboxWidth, viewboxHeight);
+        var community = new community(svg, viewboxWidth, viewboxHeight);
 
+        mapArea.setComObj(community);
 
-		d3.json("../data/geo/healthcare_providers_dentists.json", function(data){			
-			foo1 = data;
+        d3.json("../data/geo/healthcare_providers_dentists.json", function(data){           
+            mapArea.drawMap(data);
+        });
 
-            var center = d3.geo.centroid(data);
-			var scale = 100000;
-			var offset = [400, 600];
-			var projection = d3.geo
-				.mercator()
-				.scale(scale)
-				.center(center)
-				.translate(offset);
+        // testing stuff
+        var foo;
+        d3.csv("../data/cityWide/poverty_status_age.csv", function(data){
+            foo = data;
+            for (var i = foo.length - 1; i >= 0; i--) {
+                foo[i].value = parseInt(foo[i].value);
+            };
+            overall.makeDonut(foo, "age", "value")
+            overall.addData(foo);
+        });
 
-			var path = d3.geo.path().projection(projection);
+        var foo2;
+        d3.csv("../data/cityWide/poverty_status_race.csv", function(data){
+            foo2 = data;
+            for (var i = foo2.length - 1; i >= 0; i--) {
+                foo2[i].value = parseInt(foo2[i].value);
+            };
+            overall.addData(foo2);
+        });
 
-			canvas.selectAll("path")
-				.data(data.features)
-				.enter()
-					.append("path")
-					.attr("d", path)
-                    .attr("fill", "#fff")
-                    .attr("stroke", "#000")
-                    .on("mouseover", function(d){
-                        console.log(d.properties.name);
-                        d3.select(this)
-                            .attr("fill", "red");
-                    })
-                    .on("mouseout", function(){
-                        d3.select(this)
-                            .attr("fill", "white");
-                    });
-
-                    // add labels code thanks to:
-                    // http://stackoverflow.com/questions/13897534/add-names-of-the-states-to-a-map-in-d3-js
-                    canvas.selectAll("text")
-                        .data(data.features)
-                        .enter()
-                            .append("svg:text")
-                            .text(function(d){
-                                return d.properties.name;
-                            })
-                            .attr("x", function(d){
-                                return path.centroid(d)[0];
-                            })
-                            .attr("y", function(d){
-                                return path.centroid(d)[1];
-                            })
-                            .attr("text-anchor", "middle")
-                            .attr("font-size", "8pt");
-		});
 
         // not working...not sure why!
         // d3.json("../data/geo/everyblock-neighborhoods-chicago.json", function(error, data){            
