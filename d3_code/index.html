@@ -19,8 +19,8 @@
     <script type="text/javascript" src = "houseFunct.js"></script>
 	<script type="text/javascript">
         // 
-        var viewboxHeight = 814;
-        var viewboxWidth = 1600;
+        var viewboxHeight = 2000/3;
+        var viewboxWidth = 8000/3;
 
         // add viewbox to the drawSpace
         var svg = d3.select("#drawSpace")
@@ -35,56 +35,118 @@
 
         mapArea.setComObj(community);
 
-        d3.json("../data/geo/healthcare_providers_dentists.json", function(data){           
-            mapArea.drawMap(data);
+        d3.json("../data/geo/healthcare_providers_dentists.json", function(error, data){
+            d3.csv("../data/geo/districts.csv",function(data2){
+                d3.csv("../data/geo/community_number.csv", function(data3){
+                    // console.log(data2);
+                    for (var i = data3.length - 1; i >= 0; i--) {
+                        data3[i].number = parseInt(data3[i].number);
+                    };
+                    mapArea.setMapData(data, data2, data3);
+                });
+            });
         });
 
-        // testing stuff
-        var foo;
-        d3.csv("../data/cityWide/poverty_status_age.csv", function(data){
-            foo = data;
-            for (var i = foo.length - 1; i >= 0; i--) {
-                foo[i].value = parseInt(foo[i].value);
-            };
-            overall.makeDonut(foo, "age", "value")
-            overall.addData(foo);
+        // not the best way to load data, but... Im short on time
+        // also d3 kept reading values as strings not ints, not sure why... no time to figure it out
+        d3.csv("../data/cityWide/popByRace_city.csv", function(data1){
+            d3.csv("../data/cityWide/popByGender_city.csv", function(data2){
+                d3.csv("../data/cityWide/origin_city.csv", function(data3){
+                     d3.csv("../data/cityWide/poverty_status_race.csv", function(data4){
+                        d3.csv("../data/cityWide/poverty_status_age.csv", function(data5){
+                            for (var i = data1.length - 1; i >= 0; i--) {
+                                data1[i].total = parseInt(data1[i].total);
+                            };
+                            overall.addData(data1);
+
+                            for (var i = data2.length - 1; i >= 0; i--) {
+                                data2[i].male = parseInt(data2[i].male);
+                                data2[i].female = parseInt(data2[i].female);
+                                data2[i].total = parseInt(data2[i].total);
+                                data2[i].year = parseInt(data2[i].year);
+                            };
+                            overall.addData(data2);
+
+                            for (var i = data3.length - 1; i >= 0; i--) {
+                                data3[i].total = parseInt(data3[i].total);;
+                            };
+                            overall.addData(data3);
+
+                            for (var i = data4.length - 1; i >= 0; i--) {
+                                data4[i].value = parseInt(data4[i].value);
+                            };
+                            overall.addData(data4);
+
+                            for (var i = data5.length - 1; i >= 0; i--) {
+                                data5[i].value = parseInt(data5[i].value);
+                            };
+                            overall.addData(data5);
+
+                            overall.ready();
+                        });
+                    });
+                });
+            });
         });
 
-        var foo2;
-        d3.csv("../data/cityWide/poverty_status_race.csv", function(data){
-            foo2 = data;
-            for (var i = foo2.length - 1; i >= 0; i--) {
-                foo2[i].value = parseInt(foo2[i].value);
-            };
-            overall.addData(foo2);
+        d3.csv("../data/community/raceByCommunity_2010.csv", function (data1){
+            d3.csv("../data/community/genderByCommunity_2010.csv", function (data2){
+                d3.csv("../data/community/ageByCommunity_2010.csv", function (data3){
+                    d3.csv("../data/community/originByCommunity.csv", function (data4){
+                        d3.csv("../data/community/povertyByCommunity_2010.csv", function (data5){
+                            for (var i = data1.length - 1; i >= 0; i--) {
+                                data1[i].area = parseInt(data1[i].area);
+                                data1[i].NHW = parseInt(data1[i].NHW);
+                                data1[i].NHB = parseInt(data1[i].NHB);
+                                data1[i].NHAM = parseInt(data1[i].NHAM);
+                                data1[i].NHAS = parseInt(data1[i].NHAS);
+                                data1[i]["NH Other"] = parseInt(data1[i]["NH Other"]);
+                                data1[i].HISP = parseInt(data1[i].HISP);
+                                data1[i]["NH Multiple"] = parseInt(data1[i]["NH Multiple"]);
+                                data1[i].total = parseInt(data1[i].total);
+                            };
+                            community.addData(data1);
+
+                            for (var i = data2.length - 1; i >= 0; i--) {
+                                data2[i].male = parseInt(data2[i].male);
+                                data2[i].female = parseInt(data2[i].female);
+                                data2[i].area = parseInt(data2[i].area);
+                            };
+                            community.addData(data2);
+
+                            for (var i = data3.length - 1; i >= 0; i--) {
+                                data3[i].area = parseInt(data3[i].area);
+                                data3[i].age = parseInt(data3[i].age);
+                                data3[i].total = parseInt(data3[i].total);
+                            };
+                            community.addData(data3);
+
+                            for (var i = data4.length - 1; i >= 0; i--) {
+                                data4[i].area = parseInt(data4[i].area);
+                                data4[i].Asia = parseInt(data4[i].Asia);
+                                data4[i]["Central America"] = parseInt(data4[i]["Central America"]);
+                                data4[i]["Cuba/Puerto Rico"] = parseInt(data4[i]["Cuba/Puerto Rico"]);
+                                data4[i]["South America"] = parseInt(data4[i]["South America"]);
+                                data4[i]["Other Hisp/Latino"] = parseInt(data4[i]["Other Hisp/Latino"]);
+                            };
+                            community.addData(data4);
+
+                            for (var i = data5.length - 1; i >= 0; i--) {
+                                data5[i].area = parseInt(data5[i].area);
+                                data5[i]["Below"] = parseInt(data5[i]["Below"]);
+                                data5[i]["At/Above"] = parseInt(data5[i]["At/Above"]);
+                            };
+                            community.addData(data5);
+
+                        });
+                    });
+                });
+            });
         });
 
+        
 
-        // not working...not sure why!
-        // d3.json("../data/geo/everyblock-neighborhoods-chicago.json", function(error, data){            
-        //     if(error){
-        //         console.log(error);
-        //     }
-
-        //     foo = data;
-
-        //     var center = d3.geo.centroid(data);
-        //     var scale = 60000;
-        //     var offset = [400, 400];
-        //     var projection = d3.geo
-        //         .mercator()
-        //         .scale(scale)
-        //         .center(center)
-        //         .translate(offset);
-
-        //     var path = d3.geo.path().projection(projection);
-
-        //     canvas2.selectAll("path")
-        //         .data(data)
-        //         .enter()
-        //             .append("path")
-        //             .attr("d", path);
-        // });
+        
 	</script>	
 </body>
 </html>
